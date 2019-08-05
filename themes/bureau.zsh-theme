@@ -15,6 +15,7 @@ ZSH_THEME_GIT_PROMPT_BEHIND="%{$fg[magenta]%}▾%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_STAGED="%{$fg_bold[green]%}●%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_UNSTAGED="%{$fg_bold[yellow]%}●%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg_bold[red]%}●%{$reset_color%}"
+ZSH_THEME_NVM_PROMPT_PREFIX=" %F{green}⬢%f "
 
 bureau_git_branch () {
   ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
@@ -77,6 +78,14 @@ bureau_git_prompt () {
   echo $_result
 }
 
+function bureau_node_prompt() {
+
+  nvm_prompt=$(node -v 2>/dev/null)
+  [[ "${nvm_prompt}x" == "x" ]] && return
+  nvm_prompt=${nvm_prompt:1}
+  echo "${ZSH_THEME_NVM_PROMPT_PREFIX}${nvm_prompt}${ZSH_THEME_NVM_PROMPT_SUFFIX}"
+}
+
 
 _PATH="%{$fg_bold[white]%}%~%{$reset_color%}"
 
@@ -89,6 +98,7 @@ else
 fi
 _USERNAME="$_USERNAME%{$reset_color%}@%m"
 _LIBERTY="$_LIBERTY%{$reset_color%}"
+
 
 
 get_space () {
@@ -106,8 +116,8 @@ get_space () {
   echo $SPACES
 }
 
-_1LEFT="$_USERNAME $_PATH"
-_1RIGHT="[%*] "
+_1LEFT="%{$fg[cyan]%}%n%{$reset_color%}:%{$fg[green]%}%c%{$reset_color%} $(bureau_git_prompt)"
+_1RIGHT="$(bureau_node_prompt) [%*]"
 
 bureau_precmd () {
   _1SPACES=`get_space $_1LEFT $_1RIGHT`
@@ -116,8 +126,8 @@ bureau_precmd () {
 }
 
 setopt prompt_subst
-PROMPT='> $_LIBERTY '
-RPROMPT='$(nvm_prompt_info) $(bureau_git_prompt)'
+PROMPT='$_LIBERTY '
+RPROMPT=''
 
 autoload -U add-zsh-hook
 add-zsh-hook precmd bureau_precmd
